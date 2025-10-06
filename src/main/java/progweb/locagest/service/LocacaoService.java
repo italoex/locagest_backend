@@ -5,11 +5,14 @@ import progweb.locagest.model.Locacao;
 
 import java.util.List;
 
-@Service
 public interface LocacaoService {
     List<Locacao> findAll();
+
     Locacao getById(Long id);
+
     Locacao create(Locacao locacao);
+
     Locacao update(Locacao locacao);
+
     void delete(Long id);
 }
