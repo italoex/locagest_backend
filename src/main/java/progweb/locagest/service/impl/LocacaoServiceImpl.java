@@ -9,7 +9,6 @@ import java.util.List;
 
 @Service
 public class LocacaoServiceImpl implements LocacaoService {
-
     private final LocacaoRepository repository;
 
     public LocacaoServiceImpl(LocacaoRepository repository) {

@@ -1,6 +1,5 @@
 package progweb.locagest.service;
 
-import org.springframework.stereotype.Service;
 import progweb.locagest.model.Locacao;
 
 import java.util.List;
