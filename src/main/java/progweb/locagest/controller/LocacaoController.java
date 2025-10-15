@@ -1,6 +1,8 @@
 package progweb.locagest.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import progweb.locagest.dto.LocacaoCreateDTO;
 import progweb.locagest.model.Locacao;
 import progweb.locagest.service.LocacaoService;
 
@@ -22,7 +24,8 @@ public class LocacaoController {
     }
 
     @PostMapping
-    public Locacao create(@RequestBody Locacao locacao) {
-        return service.create(locacao);
+    public ResponseEntity<Locacao> create(@RequestBody LocacaoCreateDTO dto) {
+        Locacao created = service.create(dto);
+        return ResponseEntity.status(201).body(created);
     }
 }
