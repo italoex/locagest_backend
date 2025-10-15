@@ -10,7 +10,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private static final String SECRET = "minha_chave_super_secreta_para_teste_123456789"; // troque depois!
+    private static final String SECRET = "locagest_teste_123456789"; // Criar .env depois
     private static final long EXPIRATION_TIME = 86400000; // 1 dia
 
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
