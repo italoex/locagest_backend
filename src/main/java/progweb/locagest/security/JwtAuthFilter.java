@@ -31,6 +31,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
+        // Ignora o filtro para rotas públicas (login, registro, etc)
+        String path = request.getRequestURI();
+        if (path.startsWith("/auth/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         final String authHeader = request.getHeader("Authorization");
         final String token;
         final String email;
