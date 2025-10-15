@@ -17,7 +17,7 @@ public class Usuario {
     @Column(unique = true)
     private String email;
     private String senha;
-    private String cpf; // Ex: "ADMIN", "USER"
+    private String cpf; 
     // Getters e Setters
 
     public Long getId() {
