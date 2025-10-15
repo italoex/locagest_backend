@@ -10,7 +10,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private static final String SECRET = "locagest_teste_123456789"; // Criar .env depois
+    private static final String SECRET = "locagest_development_teste_123456789"; // Criar .env depois
     private static final long EXPIRATION_TIME = 86400000; // 1 dia
 
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
