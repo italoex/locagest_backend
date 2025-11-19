@@ -1,21 +1,29 @@
 package progweb.locagest.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import progweb.locagest.model.Cliente;
-import progweb.locagest.repository.ClienteRepository;
+import progweb.locagest.service.ClienteService;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/clientes")
-@CrossOrigin(origins = "*")
 public class ClienteController {
 
-    @Autowired
-    private ClienteRepository clienteRepository;
+    private final ClienteService service;
+
+    public ClienteController(ClienteService service) {
+        this.service = service;
+    }
 
     @GetMapping
-    public List<Cliente> listarTodos() {
-        return clienteRepository.findAll();
+    public List<Cliente> getAll() {
+        return service.findAll();
+    }
+
+    @PostMapping
+    public ResponseEntity<Cliente> create(@RequestBody Cliente cliente) {
+        return ResponseEntity.ok(service.save(cliente));
     }
 }

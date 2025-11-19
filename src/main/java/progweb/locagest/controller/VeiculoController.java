@@ -1,22 +1,34 @@
 package progweb.locagest.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import progweb.locagest.model.StatusVeiculo;
 import progweb.locagest.model.Veiculo;
-import progweb.locagest.repository.VeiculoRepository;
+import progweb.locagest.service.VeiculoService;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/veiculos")
-@CrossOrigin(origins = "*")
 public class VeiculoController {
 
-    @Autowired
-    private VeiculoRepository veiculoRepository;
+    private final VeiculoService service;
+
+    public VeiculoController(VeiculoService service) {
+        this.service = service;
+    }
+
+    @GetMapping
+    public List<Veiculo> getAll() {
+        return service.findAll();
+    }
 
     @GetMapping("/disponiveis")
-    public List<Veiculo> listarDisponiveis() {
-        return veiculoRepository.findByStatus(StatusVeiculo.DISPONIVEL);
+    public List<Veiculo> getDisponiveis() {
+        return service.findDisponiveis();
+    }
+
+    @PostMapping
+    public ResponseEntity<Veiculo> create(@RequestBody Veiculo veiculo) {
+        return ResponseEntity.ok(service.save(veiculo));
     }
 }
