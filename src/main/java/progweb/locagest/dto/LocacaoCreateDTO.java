@@ -7,7 +7,6 @@ public class LocacaoCreateDTO {
     private String dataDevolucao;
     private Integer km;
 
-    // getters / setters
     public Long getIdCliente() { return idCliente; }
     public void setIdCliente(Long idCliente) { this.idCliente = idCliente; }
     public Long getIdVeiculo() { return idVeiculo; }

@@ -1,88 +1,65 @@
 package progweb.locagest.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
+import java.util.Date;
 
 @Entity
 public class Locacao {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_locacao")
     private Long id;
 
     @ManyToOne
-    private Veiculo veiculo;
-
-    @ManyToOne
+    @JoinColumn(name = "id_cliente")
     private Cliente cliente;
 
-    private LocalDateTime dataHoraInicial;
-    private LocalDateTime dataHoraPrevistaDevolucao;
-    private Long kmEntrega;
+    @ManyToOne
+    @JoinColumn(name = "id_veiculo")
+    private Veiculo veiculo;
+
+    @Column(name = "data_inicial")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dataInicial;
+
+    @Column(name = "data_devolucao")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dataDevolucao;
+
+    @Column(name = "km")
+    private Integer km;
 
     @Enumerated(EnumType.STRING)
     private StatusLocacao status;
 
-    // Getters e Setters
-    public Long getId() {
-        return id;
+    public enum StatusLocacao {
+        PENDENTE, ATIVA, FINALIZADA
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Locacao() {
+        this.status = StatusLocacao.PENDENTE;
+        this.km = 0;
     }
 
-    public Veiculo getVeiculo() {
-        return veiculo;
-    }
+    // Getters e Setters Atualizados para Objetos
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setVeiculo(Veiculo veiculo) {
-        this.veiculo = veiculo;
-    }
+    public Cliente getCliente() { return cliente; }
+    public void setCliente(Cliente cliente) { this.cliente = cliente; }
 
-    public Cliente getCliente() {
-        return cliente;
-    }
+    public Veiculo getVeiculo() { return veiculo; }
+    public void setVeiculo(Veiculo veiculo) { this.veiculo = veiculo; }
 
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
-    }
+    public Date getDataInicial() { return dataInicial; }
+    public void setDataInicial(Date dataInicial) { this.dataInicial = dataInicial; }
 
-    public LocalDateTime getDataHoraInicial() {
-        return dataHoraInicial;
-    }
+    public Date getDataDevolucao() { return dataDevolucao; }
+    public void setDataDevolucao(Date dataDevolucao) { this.dataDevolucao = dataDevolucao; }
 
-    public void setDataHoraInicial(LocalDateTime dataHoraInicial) {
-        this.dataHoraInicial = dataHoraInicial;
-    }
+    public Integer getKm() { return km; }
+    public void setKm(Integer km) { this.km = km; }
 
-    public LocalDateTime getDataHoraPrevistaDevolucao() {
-        return dataHoraPrevistaDevolucao;
-    }
-
-    public void setDataHoraPrevistaDevolucao(LocalDateTime dataHoraPrevistaDevolucao) {
-        this.dataHoraPrevistaDevolucao = dataHoraPrevistaDevolucao;
-    }
-
-    public Long getKmEntrega() {
-        return kmEntrega;
-    }
-
-    public void setKmEntrega(Long kmEntrega) {
-        this.kmEntrega = kmEntrega;
-    }
-
-    public StatusLocacao getStatus() {
-        return status;
-    }
-
-    public void setStatus(StatusLocacao status) {
-        this.status = status;
-    }
+    public StatusLocacao getStatus() { return status; }
+    public void setStatus(StatusLocacao status) { this.status = status; }
 }

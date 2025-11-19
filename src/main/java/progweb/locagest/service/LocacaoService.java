@@ -3,20 +3,23 @@ package progweb.locagest.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+import java.util.Date;
+import java.util.List;
+import java.time.ZoneId;
+
 import progweb.locagest.dto.LocacaoRequestDTO;
 import progweb.locagest.model.Cliente;
 import progweb.locagest.model.Locacao;
-import progweb.locagest.model.StatusLocacao;
-import progweb.locagest.model.StatusVeiculo;
 import progweb.locagest.model.Veiculo;
+import progweb.locagest.model.StatusVeiculo;
 import progweb.locagest.repository.ClienteRepository;
 import progweb.locagest.repository.LocacaoRepository;
 import progweb.locagest.repository.VeiculoRepository;
 
-import java.time.LocalDate;
-
 @Service
-public class LocacaoService { // <-- Certifique-se que é uma 'class'
+public class LocacaoService {
 
     @Autowired
     private LocacaoRepository locacaoRepository;
@@ -27,42 +30,56 @@ public class LocacaoService { // <-- Certifique-se que é uma 'class'
     @Autowired
     private VeiculoRepository veiculoRepository;
 
-    // @Transactional garante que ou tudo (salvar locação E alterar status do veículo)
-    // funciona, ou nada é salvo no banco se der erro.
+    public List<Locacao> findAll() {
+        return locacaoRepository.findAll();
+    }
+
     @Transactional
     public Locacao iniciarLocacao(LocacaoRequestDTO dto) {
-
-        // 1. Buscar entidades
         Cliente cliente = clienteRepository.findById(dto.getClienteId())
-                .orElseThrow(() -> new LocacaoException("Cliente não encontrado."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado."));
 
         Veiculo veiculo = veiculoRepository.findById(dto.getVeiculoId())
-                .orElseThrow(() -> new LocacaoException("Veículo não encontrado."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Veículo não encontrado."));
 
-        // 2. REQUISITO: Validar CNH
-        // Esta linha agora vai funcionar porque você adicionou o campo no Cliente.java
-        if (cliente.getDataValidadeCnh().isBefore(LocalDate.now())) {
-            throw new LocacaoException("Não é possível locar: CNH do cliente está vencida.");
-        }
-
-        // 3. Validação extra: Verificar se o veículo está DISPONÍVEL
         if (veiculo.getStatus() != StatusVeiculo.DISPONIVEL) {
-            throw new LocacaoException("Veículo selecionado não está disponível para locação.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Veículo selecionado não está disponível.");
         }
-
-        // 4. REQUISITO: Marcar como locado
         veiculo.setStatus(StatusVeiculo.LOCADO);
-        veiculoRepository.save(veiculo); // Atualiza o status do veículo no banco
+        veiculoRepository.save(veiculo);
 
-        // 5. Criar a nova locação
         Locacao novaLocacao = new Locacao();
         novaLocacao.setCliente(cliente);
         novaLocacao.setVeiculo(veiculo);
-        novaLocacao.setDataHoraInicial(dto.getDataHoraInicial());
-        novaLocacao.setDataHoraPrevistaDevolucao(dto.getDataHoraPrevistaDevolucao());
-        novaLocacao.setKmEntrega(dto.getKmEntrega());
-        novaLocacao.setStatus(StatusLocacao.ATIVA); // Inicia como ATIVA
+
+        if (dto.getDataHoraInicial() != null) {
+            Date dataIni = Date.from(dto.getDataHoraInicial().atZone(ZoneId.systemDefault()).toInstant());
+            novaLocacao.setDataInicial(dataIni);
+        } else {
+            novaLocacao.setDataInicial(new Date());
+        }
+
+        if (dto.getDataHoraPrevistaDevolucao() != null) {
+            Date dataFim = Date.from(dto.getDataHoraPrevistaDevolucao().atZone(ZoneId.systemDefault()).toInstant());
+            novaLocacao.setDataDevolucao(dataFim);
+        }
+
+        novaLocacao.setKm(dto.getKmEntrega());
+        novaLocacao.setStatus(Locacao.StatusLocacao.ATIVA);
 
         return locacaoRepository.save(novaLocacao);
+    }
+
+    @Transactional
+    public Locacao confirmarInicioLocacao(Long id) {
+        Locacao locacao = locacaoRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Locação não encontrada"));
+
+        if (locacao.getStatus() == Locacao.StatusLocacao.PENDENTE) {
+            locacao.setStatus(Locacao.StatusLocacao.ATIVA);
+            locacao.setDataInicial(new Date());
+        }
+
+        return locacaoRepository.save(locacao);
     }
 }

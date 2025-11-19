@@ -18,9 +18,8 @@ public class Veiculo {
     private String modelo;
 
     @Enumerated(EnumType.STRING)
-    private StatusVeiculo status; // Campo CHAVE para sua validação
+    private StatusVeiculo status;
 
-    // Getters e Setters
     public Long getId() {
         return id;
     }

@@ -1,40 +1,37 @@
 package progweb.locagest.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-// Adicione esta importação
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import progweb.locagest.dto.LocacaoRequestDTO;
+import org.springframework.web.bind.annotation.*;
 import progweb.locagest.model.Locacao;
-import progweb.locagest.service.LocacaoException;
 import progweb.locagest.service.LocacaoService;
+import progweb.locagest.dto.LocacaoRequestDTO; // Importe o DTO
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/locacoes")
-@CrossOrigin(origins = "*")
 public class LocacaoController {
 
-    @Autowired
-    private LocacaoService locacaoService;
+    private final LocacaoService service;
 
-    @PostMapping("/iniciar")
-    public ResponseEntity<?> iniciarLocacao(@RequestBody LocacaoRequestDTO dto) {
-        try {
-            Locacao novaLocacao = locacaoService.iniciarLocacao(dto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(novaLocacao);
+    public LocacaoController(LocacaoService service) {
+        this.service = service;
+    }
 
-        } catch (LocacaoException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    @GetMapping
+    public List<Locacao> getAll() {
+        return service.findAll();
+    }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro interno ao processar a locação: " + e.getMessage());
-        }
+    @PostMapping
+    public ResponseEntity<Locacao> create(@RequestBody LocacaoRequestDTO dto) {
+        Locacao novaLocacao = service.iniciarLocacao(dto);
+        return ResponseEntity.ok(novaLocacao);
+    }
+
+    @PutMapping("/{id}/start")
+    public ResponseEntity<Locacao> startLocacao(@PathVariable Long id) {
+        Locacao locacao = service.confirmarInicioLocacao(id);
+        return ResponseEntity.ok(locacao);
     }
 }
