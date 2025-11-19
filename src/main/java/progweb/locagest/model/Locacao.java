@@ -1,48 +1,88 @@
 package progweb.locagest.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "locacao")
 public class Locacao {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_locacao")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_cliente", nullable = false)
-    private Client cliente;
+    @ManyToOne
+    private Veiculo veiculo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_veiculo", nullable = false)
-    private Vehicle veiculo;
+    @ManyToOne
+    private Cliente cliente;
 
-    @Column(name = "data_inicial", nullable = false)
-    private LocalDateTime dataInicial;
+    private LocalDateTime dataHoraInicial;
+    private LocalDateTime dataHoraPrevistaDevolucao;
+    private Long kmEntrega;
 
-    @Column(name = "data_devolucao", nullable = false)
-    private LocalDateTime dataDevolucao;
+    @Enumerated(EnumType.STRING)
+    private StatusLocacao status;
 
-    @Column(name = "km")
-    private Integer km;
+    // Getters e Setters
+    public Long getId() {
+        return id;
+    }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public Client getCliente() { return cliente; }
-    public void setCliente(Client cliente) { this.cliente = cliente; }
+    public Veiculo getVeiculo() {
+        return veiculo;
+    }
 
-    public Vehicle getVeiculo() { return veiculo; }
-    public void setVeiculo(Vehicle veiculo) { this.veiculo = veiculo; }
+    public void setVeiculo(Veiculo veiculo) {
+        this.veiculo = veiculo;
+    }
 
-    public LocalDateTime getDataInicial() { return dataInicial; }
-    public void setDataInicial(LocalDateTime dataInicial) { this.dataInicial = dataInicial; }
+    public Cliente getCliente() {
+        return cliente;
+    }
 
-    public LocalDateTime getDataDevolucao() { return dataDevolucao; }
-    public void setDataDevolucao(LocalDateTime dataDevolucao) { this.dataDevolucao = dataDevolucao; }
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
 
-    public Integer getKm() { return km; }
-    public void setKm(Integer km) { this.km = km; }
+    public LocalDateTime getDataHoraInicial() {
+        return dataHoraInicial;
+    }
+
+    public void setDataHoraInicial(LocalDateTime dataHoraInicial) {
+        this.dataHoraInicial = dataHoraInicial;
+    }
+
+    public LocalDateTime getDataHoraPrevistaDevolucao() {
+        return dataHoraPrevistaDevolucao;
+    }
+
+    public void setDataHoraPrevistaDevolucao(LocalDateTime dataHoraPrevistaDevolucao) {
+        this.dataHoraPrevistaDevolucao = dataHoraPrevistaDevolucao;
+    }
+
+    public Long getKmEntrega() {
+        return kmEntrega;
+    }
+
+    public void setKmEntrega(Long kmEntrega) {
+        this.kmEntrega = kmEntrega;
+    }
+
+    public StatusLocacao getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusLocacao status) {
+        this.status = status;
+    }
 }

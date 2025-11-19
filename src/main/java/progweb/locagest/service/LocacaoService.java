@@ -1,88 +1,68 @@
 package progweb.locagest.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-import progweb.locagest.dto.LocacaoCreateDTO;
-import progweb.locagest.model.*;
-import progweb.locagest.repository.ClientRepository;
+import progweb.locagest.dto.LocacaoRequestDTO;
+import progweb.locagest.model.Cliente;
+import progweb.locagest.model.Locacao;
+import progweb.locagest.model.StatusLocacao;
+import progweb.locagest.model.StatusVeiculo;
+import progweb.locagest.model.Veiculo;
+import progweb.locagest.repository.ClienteRepository;
 import progweb.locagest.repository.LocacaoRepository;
-import progweb.locagest.repository.VehicleRepository;
-import org.springframework.http.HttpStatus;
+import progweb.locagest.repository.VeiculoRepository;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.List;
 
 @Service
-public class LocacaoService {
-    private final LocacaoRepository locacaoRepository;
-    private final ClientRepository clientRepository;
-    private final VehicleRepository vehicleRepository;
+public class LocacaoService { // <-- Certifique-se que é uma 'class'
 
-    public LocacaoService(LocacaoRepository locacaoRepository, ClientRepository clientRepository, VehicleRepository vehicleRepository) {
-        this.locacaoRepository = locacaoRepository;
-        this.clientRepository = clientRepository;
-        this.vehicleRepository = vehicleRepository;
-    }
+    @Autowired
+    private LocacaoRepository locacaoRepository;
 
-    public List<Locacao> findAll() {
-        return locacaoRepository.findAll();
-    }
+    @Autowired
+    private ClienteRepository clienteRepository;
 
+    @Autowired
+    private VeiculoRepository veiculoRepository;
+
+    // @Transactional garante que ou tudo (salvar locação E alterar status do veículo)
+    // funciona, ou nada é salvo no banco se der erro.
     @Transactional
-    public Locacao create(LocacaoCreateDTO dto) {
-        if (dto.getIdCliente() == null || dto.getIdVeiculo() == null || dto.getDataInicial() == null || dto.getDataDevolucao() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Campos obrigatórios ausentes.");
+    public Locacao iniciarLocacao(LocacaoRequestDTO dto) {
+
+        // 1. Buscar entidades
+        Cliente cliente = clienteRepository.findById(dto.getClienteId())
+                .orElseThrow(() -> new LocacaoException("Cliente não encontrado."));
+
+        Veiculo veiculo = veiculoRepository.findById(dto.getVeiculoId())
+                .orElseThrow(() -> new LocacaoException("Veículo não encontrado."));
+
+        // 2. REQUISITO: Validar CNH
+        // Esta linha agora vai funcionar porque você adicionou o campo no Cliente.java
+        if (cliente.getDataValidadeCnh().isBefore(LocalDate.now())) {
+            throw new LocacaoException("Não é possível locar: CNH do cliente está vencida.");
         }
 
-        Client client = clientRepository.findById(dto.getIdCliente())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cliente não encontrado."));
-        Vehicle vehicle = vehicleRepository.findById(dto.getIdVeiculo())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Veículo não encontrado."));
-
-        LocalDateTime inicio;
-        LocalDateTime devolucao;
-        try {
-            inicio = LocalDateTime.parse(dto.getDataInicial());
-            devolucao = LocalDateTime.parse(dto.getDataDevolucao());
-        } catch (DateTimeParseException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Formato de data inválido. Use ISO local datetime (ex: 2025-10-10T09:00).");
+        // 3. Validação extra: Verificar se o veículo está DISPONÍVEL
+        if (veiculo.getStatus() != StatusVeiculo.DISPONIVEL) {
+            throw new LocacaoException("Veículo selecionado não está disponível para locação.");
         }
 
-        if (inicio.isAfter(devolucao) || inicio.isEqual(devolucao)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data inicial deve ser anterior à data prevista de devolução.");
-        }
+        // 4. REQUISITO: Marcar como locado
+        veiculo.setStatus(StatusVeiculo.LOCADO);
+        veiculoRepository.save(veiculo); // Atualiza o status do veículo no banco
 
-        if (vehicle.getStatus() == VehicleStatus.LOCADO) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Veículo já está locado.");
-        }
+        // 5. Criar a nova locação
+        Locacao novaLocacao = new Locacao();
+        novaLocacao.setCliente(cliente);
+        novaLocacao.setVeiculo(veiculo);
+        novaLocacao.setDataHoraInicial(dto.getDataHoraInicial());
+        novaLocacao.setDataHoraPrevistaDevolucao(dto.getDataHoraPrevistaDevolucao());
+        novaLocacao.setKmEntrega(dto.getKmEntrega());
+        novaLocacao.setStatus(StatusLocacao.ATIVA); // Inicia como ATIVA
 
-        if (client.getCnhValidade() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CNH não cadastrada para este cliente.");
-        }
-        LocalDate cnhValidade = client.getCnhValidade();
-        LocalDate inicioDate = inicio.toLocalDate();
-        if (cnhValidade.isBefore(inicioDate)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CNH vencida antes da data de início da locação.");
-        }
-
-        Locacao locacao = new Locacao();
-        locacao.setCliente(client);
-        locacao.setVeiculo(vehicle);
-        locacao.setDataInicial(inicio);
-        locacao.setDataDevolucao(devolucao);
-        locacao.setKm(dto.getKm());
-
-        Locacao saved = locacaoRepository.save(locacao);
-
-        vehicle.setStatus(VehicleStatus.LOCADO);
-        if (dto.getKm() != null) {
-            vehicle.setKmAtual(dto.getKm());
-        }
-        vehicleRepository.save(vehicle);
-
-        return saved;
+        return locacaoRepository.save(novaLocacao);
     }
 }
