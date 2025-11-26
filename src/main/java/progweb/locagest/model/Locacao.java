@@ -42,24 +42,59 @@ public class Locacao {
     }
 
     // Getters e Setters Atualizados para Objetos
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public Cliente getCliente() { return cliente; }
-    public void setCliente(Cliente cliente) { this.cliente = cliente; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public Veiculo getVeiculo() { return veiculo; }
-    public void setVeiculo(Veiculo veiculo) { this.veiculo = veiculo; }
+    public Cliente getCliente() {
+        return cliente;
+    }
 
-    public Date getDataInicial() { return dataInicial; }
-    public void setDataInicial(Date dataInicial) { this.dataInicial = dataInicial; }
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
 
-    public Date getDataDevolucao() { return dataDevolucao; }
-    public void setDataDevolucao(Date dataDevolucao) { this.dataDevolucao = dataDevolucao; }
+    public Veiculo getVeiculo() {
+        return veiculo;
+    }
 
-    public Integer getKm() { return km; }
-    public void setKm(Integer km) { this.km = km; }
+    public void setVeiculo(Veiculo veiculo) {
+        this.veiculo = veiculo;
+    }
 
-    public StatusLocacao getStatus() { return status; }
-    public void setStatus(StatusLocacao status) { this.status = status; }
+    public Date getDataInicial() {
+        return dataInicial;
+    }
+
+    public void setDataInicial(Date dataInicial) {
+        this.dataInicial = dataInicial;
+    }
+
+    public Date getDataDevolucao() {
+        return dataDevolucao;
+    }
+
+    public void setDataDevolucao(Date dataDevolucao) {
+        this.dataDevolucao = dataDevolucao;
+    }
+
+    public Integer getKm() {
+        return km;
+    }
+
+    public void setKm(Integer km) {
+        this.km = km;
+    }
+
+    public StatusLocacao getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusLocacao status) {
+        this.status = status;
+    }
 }
