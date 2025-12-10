@@ -26,8 +26,17 @@ public class Locacao {
     @Temporal(TemporalType.TIMESTAMP)
     private Date dataDevolucao;
 
+    @Column(name = "km_inicial")
+    private Integer kmInicial;
+
+    @Column(name = "km_final")
+    private Integer kmFinal;
+
     @Column(name = "km")
     private Integer km;
+
+    @Column(name = "valor")
+    private Double valor;
 
     @Enumerated(EnumType.STRING)
     private StatusLocacao status;
@@ -41,7 +50,6 @@ public class Locacao {
         this.km = 0;
     }
 
-    // Getters e Setters Atualizados para Objetos
     public Long getId() {
         return id;
     }
@@ -82,12 +90,36 @@ public class Locacao {
         this.dataDevolucao = dataDevolucao;
     }
 
+    public Integer getKmInicial() {
+        return kmInicial;
+    }
+
+    public void setKmInicial(Integer kmInicial) {
+        this.kmInicial = kmInicial;
+    }
+
+    public Integer getKmFinal() {
+        return kmFinal;
+    }
+
+    public void setKmFinal(Integer kmFinal) {
+        this.kmFinal = kmFinal;
+    }
+
     public Integer getKm() {
         return km;
     }
 
     public void setKm(Integer km) {
         this.km = km;
+    }
+
+    public Double getValor() {
+        return valor;
+    }
+
+    public void setValor(Double valor) {
+        this.valor = valor;
     }
 
     public StatusLocacao getStatus() {
