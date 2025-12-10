@@ -15,10 +15,20 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.server.ResponseStatusException;
+import progweb.locagest.util.ReflectionValidator;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+/**
+ * Manipulador global de exceções.
+ * Usa reflexão via ReflectionValidator para validar automaticamente objetos
+ * recebidos.
+ * 
+ * @see ReflectionValidator - Utilitário que usa reflexão para inspecionar e
+ *      validar campos
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
