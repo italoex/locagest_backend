@@ -39,12 +39,14 @@ public class AuthController {
         if (usuarioRepository.findByCpf(usuario.getCpf()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "CPF já cadastrado");
         }
+        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
+
         Usuario saved = usuarioRepository.save(usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequest body) {
+    public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginRequest body) {
         String identifier = body.getIdentifier();
         String password = body.getPassword();
         Usuario usuario = usuarioRepository.findByEmail(identifier)
@@ -53,7 +55,7 @@ public class AuthController {
 
         if (passwordEncoder.matches(password, usuario.getSenha())) {
             String token = jwtUtil.generateToken(usuario.getEmail());
-            return ResponseEntity.ok(Map.of("token", token));
+            return ResponseEntity.ok(Map.of("token", token, "user", usuario));
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciais inválidas");
         }
